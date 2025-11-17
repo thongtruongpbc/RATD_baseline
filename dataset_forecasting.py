@@ -1,8 +1,8 @@
 import pickle
-from torch.utils.data import DataLoader, Dataset
 import pandas as pd
 import numpy as np
 import torch
+from torch.utils.data import DataLoader, Dataset
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 class Dataset_Electricity(Dataset):
@@ -63,6 +63,7 @@ class Dataset_Electricity(Dataset):
 
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
+        self.train_data = data[border1s[0]:border2s[0]]
         self.mask_data = np.ones_like(self.data_x)
         
         self.reference=torch.clamp(self.reference,min=0, max=26305)
@@ -74,9 +75,9 @@ class Dataset_Electricity(Dataset):
         r_begin = s_end - self.label_len
         r_end = r_begin + self.label_len + self.pred_len
         reference=np.zeros((3*self.pred_len, self.dim))
-        reference[:self.pred_len, :]=self.data_x[int(self.reference[3*index])+self.seq_len:int(self.reference[3*index])+self.seq_len+self.pred_len]
-        reference[self.pred_len:2*self.pred_len]=self.data_x[int(self.reference[3*index+1])+self.seq_len:int(self.reference[3*index+1])+self.seq_len+self.pred_len]
-        reference[2*self.pred_len:3*self.pred_len]=self.data_x[int(self.reference[3*index+2])+self.seq_len:int(self.reference[3*index+2])+self.seq_len+self.pred_len]
+        reference[:self.pred_len, :]=self.train_data[int(self.reference[3*index])+self.seq_len:int(self.reference[3*index])+self.seq_len+self.pred_len]
+        reference[self.pred_len:2*self.pred_len]=self.train_data[int(self.reference[3*index+1])+self.seq_len:int(self.reference[3*index+1])+self.seq_len+self.pred_len]
+        reference[2*self.pred_len:3*self.pred_len]=self.train_data[int(self.reference[3*index+2])+self.seq_len:int(self.reference[3*index+2])+self.seq_len+self.pred_len]
 
         seq_x = self.data_x[s_begin:s_end]
         seq_y = self.data_y[r_begin:r_end]
