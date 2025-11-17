@@ -3,7 +3,7 @@ import numpy as np
 from TCN.word_cnn.model import TCN
 import datautils
 from utils import init_dl_program, name_with_datetime, pkl_save, data_dropout
-
+from torch.utils.data import DataLoader, Dataset
 import torch
 import numpy as np
 import argparse
@@ -105,7 +105,36 @@ def all_encode(model,config):
     train_vec_list = torch.cat(train_vec_list, dim=0)
     torch.save(train_vec_list.float(), config["path"]["vec_train_path"])
 
-    
+def train_one_epoch(model, loader, optimizer, criterion, device):
+    model.train()
+    epoch_loss = 0
+
+    for x in loader:
+        x = x.to(device)       # shape: (B, seq_len, input_size)
+
+        optimizer.zero_grad()
+        output = model(x)      # shape: (B, output_size)
+        loss = criterion(output, x)
+        loss.backward()
+        optimizer.step()
+        epoch_loss += loss.item()
+    return epoch_loss / len(loader)
+
+
+def validation(model, loader, criterion, device):
+    model.eval()
+    loss_total = 0
+
+    with torch.no_grad():
+        for x in loader:
+            x = x.to(device)
+
+            output = model(x)
+            loss = criterion(output, x)
+            loss_total += loss.item()
+
+    return loss_total / len(loader)
+  
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="CSDI")
     parser.add_argument("--config", type=str, default="retrieval_ele.yaml")
@@ -123,15 +152,44 @@ if __name__ == '__main__':
         config = yaml.safe_load(f)
 
     config["retrieval"]["encoder"] = args.encoder
+    #setting
+    num_epochs = 50
+    batch_size = 8
+    criterion = torch.nn.MSELoss()
+        
     model = TCN(
             input_size=config["retrieval"]["length"],
             output_size=config["retrieval"]["length"], num_channels=[config["retrieval"]["length"]] * (config["retrieval"]["level"]) + [config["retrieval"]["length"]],
         ).to(config["retrieval"]["device"])
-    #model=torch.load( config["path"]["encoder_path"])
+        #model=torch.load( config["path"]["encoder_path"])
     if args.type == 'encode':
+        # Load data
+        L=config["retrieval"]["L"]  # his_len
+        H=config["retrieval"]["H"] # hoziron pred_len
+        train_set = datautils.Dataset_Electricity_TCN(root_path=config["path"]["dataset_path"],flag='train',size=[L, 0, H])
+        val_set = datautils.Dataset_Electricity_TCN(root_path=config["path"]["dataset_path"],flag='val',size=[L, 0, H])
+
+        train_loader = DataLoader(
+            train_set, batch_size = batch_size, shuffle=1)
+        val_loader = DataLoader(
+            val_set, batch_size = batch_size, shuffle=0)
+
+        
+        optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+        for epoch in range(num_epochs):
+            train_loss = train_one_epoch(model, train_loader, optimizer, criterion, device = 'cuda:0')
+            val_loss = validation(model, val_loader, criterion, device = 'cuda:0')
+            print(f"Epoch {epoch+1}/{num_epochs}  Train Loss: {train_loss:.4f}  Val Loss: {val_loss:.4f}")
+
+        torch.save(model.state_dict(), "tcn_model.pth")
+
+        # all encode
         all_encode(model,config)
     if args.type == 'retrieval':
-        all_retrieval(model,config)
+        model.load_state_dict(torch.load("tcn_model.pth", map_location='cuda:0'))
+        model.to('cuda:0')
+        model.eval()
+        all_retrieval(model, config["retrieval"]["level"], config)
 
 
     
