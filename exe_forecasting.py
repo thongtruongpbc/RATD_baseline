@@ -24,7 +24,7 @@ parser.add_argument("--ref_size", type=int, default=168)
 args = parser.parse_args()
 print(args)
 
-path = "/data/0shared/liujingwei/RATD/config/" + args.config
+path = "/RATD/config/" + args.config
 with open(path, "r") as f:
     config = yaml.safe_load(f)
 
@@ -56,7 +56,7 @@ if args.modelfolder == "":
         foldername=foldername,
     )
 else:
-    model.load_state_dict(torch.load("/data/0shared/liujingwei/RATD/save/" + args.modelfolder + "/model.pth"))
+    model.load_state_dict(torch.load("/data/RATD/save/" + args.modelfolder + "/model.pth"))
 model.target_dim = args.target_dim
 evaluate(
     model,
