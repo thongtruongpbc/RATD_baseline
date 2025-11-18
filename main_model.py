@@ -329,6 +329,7 @@ class RATD_Forecasting(RATD_base):
             gt_mask,
             _,
             _, 
+            _,
         ) = self.process_data(batch)
 
         with torch.no_grad():

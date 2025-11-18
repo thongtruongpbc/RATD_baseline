@@ -669,7 +669,7 @@ class Dataset_Pred(Dataset):
         return self.scaler.inverse_transform(data)
 
 
-class Dataset_Electricity(Dataset):
+class Dataset_retrieval(Dataset):
     def __init__(self, root_path, flag='train', size=None,
                  features='S', data_path='electricity.csv',
                  target='OT', scale=True, timeenc=0, freq='h'):
@@ -740,7 +740,7 @@ class Dataset_Electricity(Dataset):
 
 
 # dataset for training TCN
-class Dataset_Electricity_TCN(Dataset):
+class Dataset_TCN(Dataset):
     def __init__(self, root_path, flag='train', size=None,
                  features='S', data_path='electricity.csv',
                  target='OT', scale=True, timeenc=0, freq='h'):

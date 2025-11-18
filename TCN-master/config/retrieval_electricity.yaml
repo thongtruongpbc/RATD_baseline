@@ -1,0 +1,25 @@
+
+#type: args
+
+
+path:
+  dataset_path: '/home/cds/ntthu/VARDiff/RATD_baseline/data/ts2vec'
+  datatype: 'electricity'
+  encoder_path: './TCN-master/training/electricity__test1_20240421_163624/model.pt'
+  vec_val_path: './data/TCN/ele_valvec_list.pt'
+  vec_test_path: './data/TCN/ele_testvec_list.pt'
+  diffusion_embedding_dim: 128
+  beta_start: 0.0001
+  beta_end: 0.5
+  num_steps: 50
+  schedule: "quad"
+  is_linear: True
+
+retrieval:
+  device: 'cuda:0'
+  dim: 321
+  latent_size: 64
+  num_channels: 400
+  level: 3  #top_k
+  num_sample_features: 64
+  use_reference: True

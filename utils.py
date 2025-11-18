@@ -27,53 +27,56 @@ def train(
     for epoch_no in range(config["epochs"]):
         avg_loss = 0
         model.train()
+        accumulation_steps = 8
         with tqdm(train_loader, mininterval=5.0, maxinterval=50.0) as it:
             for batch_no, train_batch in enumerate(it, start=1):
-                optimizer.zero_grad()
-
                 loss = model(train_batch)
+                loss = loss / accumulation_steps
                 loss.backward()
                 avg_loss += loss.item()
-                optimizer.step()
-                it.set_postfix(
-                    ordered_dict={
-                        "avg_epoch_loss": avg_loss / batch_no,
-                        "epoch": epoch_no,
-                    },
-                    refresh=False,
-                )
-                if batch_no >= config["itr_per_epoch"]:
-                    break
+                if (batch_no + 1) % accumulation_steps == 0:
+                    
+                    optimizer.step()
+                    optimizer.zero_grad()
+                    it.set_postfix(
+                        ordered_dict={
+                            "avg_epoch_loss": avg_loss / batch_no,
+                            "epoch": epoch_no,
+                        },
+                        refresh=False,
+                    )
+                    if batch_no >= config["itr_per_epoch"]:
+                        break
 
             lr_scheduler.step()
-        if valid_loader is not None and (epoch_no + 1) % valid_epoch_interval == 0:
-            #model.eval()
-            #avg_loss_valid = 0
-            #with torch.no_grad():
-                #with tqdm(valid_loader, mininterval=5.0, maxinterval=50.0) as it:
-                    #for batch_no, valid_batch in enumerate(it, start=1):
-                        #loss = model(valid_batch, is_train=0)
-                        #avg_loss_valid += loss.item()
-                        #it.set_postfix(
-                            #ordered_dict={
-                                #"valid_avg_epoch_loss": avg_loss_valid / batch_no,
-                                #"epoch": epoch_no,
-                            #},
-                            #refresh=False,
-                        #)
-            #if best_valid_loss > avg_loss_valid:
-                #if foldername != "":
-            torch.save(model.state_dict(), output_path)
-                #best_valid_loss = avg_loss_valid
-                #print(
-                    #"\n best loss is updated to ",
-                    #avg_loss_valid / batch_no,
-                    #"at",
-                    #epoch_no,
-                #)
 
-    if foldername != "":
-        torch.save(model.state_dict(), output_path)
+        best_valid_loss = float('inf')
+
+        if valid_loader is not None and (epoch_no + 1) % valid_epoch_interval == 0:
+            model.eval()
+            avg_loss_valid = 0.0
+
+            with torch.no_grad():
+                with tqdm(valid_loader, mininterval=5.0, maxinterval=50.0) as it:
+                    for batch_no, valid_batch in enumerate(it, start=1):
+                        loss = model(valid_batch, is_train=0)
+                        avg_loss_valid += loss.item()
+
+                        it.set_postfix(
+                            ordered_dict={
+                                "valid_avg_epoch_loss": avg_loss_valid / batch_no,
+                                "epoch": epoch_no,
+                            },
+                            refresh=False,
+                        )
+
+            avg_loss_valid /= batch_no
+
+            if avg_loss_valid < best_valid_loss:
+                best_valid_loss = avg_loss_valid
+                torch.save(model.state_dict(), output_path)
+                print(f"\n[Best Model Updated] loss = {best_valid_loss:.6f} at epoch {epoch_no}")
+
 
 
 def quantile_loss(target, forecast, q: float, eval_points) -> float:
@@ -119,102 +122,145 @@ def calc_quantile_CRPS_sum(target, forecast, eval_points, mean_scaler, scaler):
         CRPS += q_loss / denom
     return CRPS.item() / len(quantiles)
 
-def evaluate(model, test_loader, nsample=100, scaler=1, mean_scaler=0, foldername=""):
+# def evaluate(model, test_loader, nsample=1, scaler=1, mean_scaler=0, foldername=""):
+#     with torch.no_grad():
+#         model.eval()
+#         mse_total = 0.0
+#         mae_total = 0.0
+#         evalpoints_total = 0.0
+#         device = 'cuda:0'
+#         mse_list = torch.zeros(100, device=device)
+
+#         with tqdm(test_loader, mininterval=5.0, maxinterval=50.0) as it:
+#             for batch_no, test_batch in enumerate(it, start=1):
+
+#                 samples, target, eval_points, observed_points, observed_time = model.evaluate(
+#                     test_batch, nsample
+#                 )
+#                 samples = samples.to(device)                # (B, nsample, L, K)
+#                 target = target.to(device)                  # (B, L, K)
+#                 eval_points = eval_points.to(device)        # (B, L, K)
+
+#                 samples = samples.permute(0, 1, 3, 2)       # (B, nsample, K, L)
+#                 target = target.permute(0, 2, 1)            # (B, K, L)
+#                 eval_points = eval_points.permute(0, 2, 1)  # (B, K, L)
+
+#                 samples_median = samples.median(dim=1).values  # (B, K, L)
+
+#                 diff = (samples_median - target) * eval_points
+#                 mse_current = (diff ** 2) * (scaler ** 2)
+#                 mae_current = torch.abs(diff) * scaler
+#                 mse_sum = mse_current.sum()
+#                 mae_sum = mae_current.sum()
+#                 eval_sum = eval_points.sum()
+
+#                 mse_total += mse_sum
+#                 mae_total += mae_sum
+#                 evalpoints_total += eval_sum
+    
+
+                
+#             with open(
+#                 foldername + "/generated_outputs_nsample" + str(nsample) + ".pk", "wb"
+#             ) as f:
+#                 all_target = torch.cat(all_target, dim=0)
+#                 all_evalpoint = torch.cat(all_evalpoint, dim=0)
+#                 all_observed_point = torch.cat(all_observed_point, dim=0)
+#                 all_observed_time = torch.cat(all_observed_time, dim=0)
+#                 all_generated_samples = torch.cat(all_generated_samples, dim=0)
+
+#                 pickle.dump(
+#                     [
+#                         all_generated_samples,
+#                         all_target,
+#                         all_evalpoint,
+#                         all_observed_point,
+#                         all_observed_time,
+#                         scaler,
+#                         mean_scaler,
+#                     ],
+#                     f,
+#                 )
+
+#             CRPS = calc_quantile_CRPS(
+#                 all_target, all_generated_samples, all_evalpoint, mean_scaler, scaler
+#             )
+#             CRPS_sum = calc_quantile_CRPS_sum(
+#                 all_target, all_generated_samples, all_evalpoint, mean_scaler, scaler
+#             )
+
+#             with open(
+#                 foldername + "/result_nsample" + str(nsample) + ".pk", "wb"
+#             ) as f:
+#                 pickle.dump(
+#                     [
+#                         np.sqrt(mse_total / evalpoints_total),
+#                         mae_total / evalpoints_total,
+#                         CRPS,
+#                     ],
+#                     f,
+#                 )
+#                 print("RMSE:", np.sqrt((mse_total / evalpoints_total).cpu().item()))
+#                 print("MAE:", mae_total / evalpoints_total)
+#                 print("CRPS:", CRPS)
+#                 print("CRPS_sum:", CRPS_sum)
+    
+#     rmse = np.sqrt(mse_total / evalpoints_total)
+#     rmse = np.sqrt((mse_total / evalpoints_total).cpu().item())
+#     mae = (mae_total / evalpoints_total).cpu().item()
+
+#     if torch.is_tensor(CRPS):
+#         CRPS = CRPS.cpu().item()
+
+#     if torch.is_tensor(CRPS_sum):
+#         CRPS_sum = CRPS_sum.cpu().item()
+
+
+#     return rmse, mae, CRPS, CRPS_sum
+
+
+def evaluate(model, test_loader, nsample=3, scaler=1, mean_scaler=0, foldername=""):
     with torch.no_grad():
         model.eval()
-        mse_total = 0
-        mae_total = 0
-        evalpoints_total = 0
-        x=np.linspace(0,100,100)
-        mse_list=np.zeros(100)
-        all_target = []
-        all_observed_point = []
-        all_observed_time = []
-        all_evalpoint = []
-        all_generated_samples = []
+        mse_total = 0.0
+        mae_total = 0.0
+        evalpoints_total = 0.0
+        device = 'cuda:0'
+        mse_list = torch.zeros(100, device=device)
+
         with tqdm(test_loader, mininterval=5.0, maxinterval=50.0) as it:
             for batch_no, test_batch in enumerate(it, start=1):
-                output = model.evaluate(test_batch, nsample)
 
-                samples, c_target, eval_points, observed_points, observed_time = output
-                samples = samples.permute(0, 1, 3, 2)  # (B,nsample,L,K)
-                c_target = c_target.permute(0, 2, 1)  # (B,L,K)
-                eval_points = eval_points.permute(0, 2, 1)
-                observed_points = observed_points.permute(0, 2, 1)
-
-                samples_median = samples.median(dim=1)
-                all_target.append(c_target)
-                all_evalpoint.append(eval_points)
-                all_observed_point.append(observed_points)
-                all_observed_time.append(observed_time)
-                all_generated_samples.append(samples)
-                
-                
-                mse_current = (
-                    ((samples_median.values - c_target) * eval_points) ** 2
-                ) * (scaler ** 2)
-                mae_current = (
-                    torch.abs((samples_median.values - c_target) * eval_points) 
-                ) * scaler
-                if batch_no<100:
-                    mse_list[batch_no-1]=mse_current.sum().item()/eval_points.sum().item()
-                mse_total += mse_current.sum().item()
-                mae_total += mae_current.sum().item()
-                evalpoints_total += eval_points.sum().item()
-
-                it.set_postfix(
-                    ordered_dict={
-                        "rmse_total": np.sqrt(mse_total / evalpoints_total),
-                        "mae_total": mae_total / evalpoints_total,
-                        "batch_no": batch_no,
-                    },
-                    refresh=True,
+                samples, target, eval_points, observed_points, observed_time = model.evaluate(
+                    test_batch, nsample
                 )
-            fig,ax = plt.subplots()
-            ax.plot(x,mse_list,color = '#1D2B53')
-            plt.savefig('moti1.pdf')
-            plt.show()
-            with open(
-                foldername + "/generated_outputs_nsample" + str(nsample) + ".pk", "wb"
-            ) as f:
-                all_target = torch.cat(all_target, dim=0)
-                all_evalpoint = torch.cat(all_evalpoint, dim=0)
-                all_observed_point = torch.cat(all_observed_point, dim=0)
-                all_observed_time = torch.cat(all_observed_time, dim=0)
-                all_generated_samples = torch.cat(all_generated_samples, dim=0)
+                samples = samples.to(device)                # (B, nsample, L, K)
+                target = target.to(device)                  # (B, L, K)
+                eval_points = eval_points.to(device)        # (B, L, K)
 
-                pickle.dump(
-                    [
-                        all_generated_samples,
-                        all_target,
-                        all_evalpoint,
-                        all_observed_point,
-                        all_observed_time,
-                        scaler,
-                        mean_scaler,
-                    ],
-                    f,
-                )
+                samples = samples.permute(0, 1, 3, 2)       # (B, nsample, K, L)
+                target = target.permute(0, 2, 1)            # (B, K, L)
+                eval_points = eval_points.permute(0, 2, 1)  # (B, K, L)
 
-            CRPS = calc_quantile_CRPS(
-                all_target, all_generated_samples, all_evalpoint, mean_scaler, scaler
-            )
-            CRPS_sum = calc_quantile_CRPS_sum(
-                all_target, all_generated_samples, all_evalpoint, mean_scaler, scaler
-            )
+                samples_median = samples.median(dim=1).values  # (B, K, L)
 
-            with open(
-                foldername + "/result_nsample" + str(nsample) + ".pk", "wb"
-            ) as f:
-                pickle.dump(
-                    [
-                        np.sqrt(mse_total / evalpoints_total),
-                        mae_total / evalpoints_total,
-                        CRPS,
-                    ],
-                    f,
-                )
-                print("RMSE:", np.sqrt(mse_total / evalpoints_total))
-                print("MAE:", mae_total / evalpoints_total)
-                print("CRPS:", CRPS)
-                print("CRPS_sum:", CRPS_sum)
+                diff = (samples_median - target) * eval_points
+                mse_current = (diff ** 2) * (scaler ** 2)
+                mae_current = torch.abs(diff) * scaler
+                mse_sum = mse_current.sum()
+                mae_sum = mae_current.sum()
+                eval_sum = eval_points.sum()
+
+                mse_total += mse_sum
+                mae_total += mae_sum
+                evalpoints_total += eval_sum
+
+    
+    rmae = (mae_total / evalpoints_total).cpu().item()
+    rmse = np.sqrt((mse_total / evalpoints_total).cpu().item())
+    mae = (mae_total / evalpoints_total).cpu().item()
+    mse = (mse_total / evalpoints_total).cpu().item()
+
+
+
+    return mae, mse, rmse,  rmae

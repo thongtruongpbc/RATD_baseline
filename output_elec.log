@@ -1,0 +1,491 @@
+nohup: ignoring input
+Namespace(config='base_forecasting.yaml', datatype='electricity', device='cuda:0', seed=1, unconditional=False, modelfolder='', nsample=100, h_size=96, ref_size=96)
+{
+    "train": {
+        "epochs": 100,
+        "batch_size": 16,
+        "lr": 0.0003,
+        "itr_per_epoch": 100000000.0
+    },
+    "diffusion": {
+        "layers": 4,
+        "channels": 64,
+        "nheads": 8,
+        "diffusion_embedding_dim": 128,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "num_steps": 50,
+        "schedule": "quad",
+        "is_linear": true,
+        "h_size": 96,
+        "ref_size": 96
+    },
+    "model": {
+        "is_unconditional": false,
+        "timeemb": 128,
+        "featureemb": 16,
+        "target_strategy": "test",
+        "num_sample_features": 64,
+        "use_reference": true
+    }
+}
+model folder: ./save/forecasting_electricity_20251118_032300/
+  0%|          | 0/1127 [00:00<?, ?it/s]  0%|          | 0/1127 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/exe_forecasting.py", line 73, in <module>
+    train(
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/utils.py", line 34, in train
+    loss = model(train_batch)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 322, in forward
+    return loss_func(observed_data, cond_mask, observed_mask, side_info, is_train, reference=reference)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 130, in calc_loss
+    predicted = self.diffmodel(total_input, side_info, t, reference=reference)  # (B,K,L)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 176, in forward
+    x, skip_connection = layer(x, cond_info, diffusion_emb, reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 255, in forward
+    cond_info = self.RMA(y.reshape(B, channel, K, L),cond_info.reshape(B, channel, K, L),reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 65, in forward
+    sim = einsum('b h i d, b h j d -> b h i j', cond, ref) * self.scale # (B*C, N, K, K)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/functional.py", line 373, in einsum
+    return _VF.einsum(equation, operands)  # type: ignore[attr-defined]
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 3.15 GiB. GPU 0 has a total capacity of 31.36 GiB of which 1.36 GiB is free. Process 108858 has 4.88 GiB memory in use. Including non-PyTorch memory, this process has 25.06 GiB memory in use. Of the allocated memory 22.95 GiB is allocated by PyTorch, and 1.53 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Namespace(config='base_forecasting.yaml', datatype='electricity', device='cuda:0', seed=1, unconditional=False, modelfolder='', nsample=100, h_size=720, ref_size=96)
+{
+    "train": {
+        "epochs": 100,
+        "batch_size": 16,
+        "lr": 0.0003,
+        "itr_per_epoch": 100000000.0
+    },
+    "diffusion": {
+        "layers": 4,
+        "channels": 64,
+        "nheads": 8,
+        "diffusion_embedding_dim": 128,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "num_steps": 50,
+        "schedule": "quad",
+        "is_linear": true,
+        "h_size": 720,
+        "ref_size": 96
+    },
+    "model": {
+        "is_unconditional": false,
+        "timeemb": 128,
+        "featureemb": 16,
+        "target_strategy": "test",
+        "num_sample_features": 64,
+        "use_reference": true
+    }
+}
+model folder: ./save/forecasting_electricity_20251118_032303/
+  0%|          | 0/1049 [00:00<?, ?it/s]  0%|          | 0/1049 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/exe_forecasting.py", line 73, in <module>
+    train(
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/utils.py", line 34, in train
+    loss = model(train_batch)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 322, in forward
+    return loss_func(observed_data, cond_mask, observed_mask, side_info, is_train, reference=reference)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 130, in calc_loss
+    predicted = self.diffmodel(total_input, side_info, t, reference=reference)  # (B,K,L)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 176, in forward
+    x, skip_connection = layer(x, cond_info, diffusion_emb, reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 255, in forward
+    cond_info = self.RMA(y.reshape(B, channel, K, L),cond_info.reshape(B, channel, K, L),reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 76, in forward
+    out, context_out = map(lambda t: rearrange(t, 'b h n d -> b n (h d)'), (out, context_out))
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 76, in <lambda>
+    out, context_out = map(lambda t: rearrange(t, 'b h n d -> b n (h d)'), (out, context_out))
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/einops/einops.py", line 600, in rearrange
+    return reduce(tensor, pattern, reduction="rearrange", **axes_lengths)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/einops/einops.py", line 532, in reduce
+    return _apply_recipe(
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/einops/einops.py", line 251, in _apply_recipe
+    tensor = backend.reshape(tensor, final_shapes)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/einops/_backends.py", line 93, in reshape
+    return x.reshape(shape)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 642.00 MiB. GPU 0 has a total capacity of 31.36 GiB of which 421.31 MiB is free. Process 108858 has 4.88 GiB memory in use. Including non-PyTorch memory, this process has 26.01 GiB memory in use. Of the allocated memory 25.21 GiB is allocated by PyTorch, and 225.29 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Namespace(config='base_forecasting.yaml', datatype='electricity', device='cuda:0', seed=1, unconditional=False, modelfolder='', nsample=100, h_size=96, ref_size=192)
+{
+    "train": {
+        "epochs": 100,
+        "batch_size": 16,
+        "lr": 0.0003,
+        "itr_per_epoch": 100000000.0
+    },
+    "diffusion": {
+        "layers": 4,
+        "channels": 64,
+        "nheads": 8,
+        "diffusion_embedding_dim": 128,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "num_steps": 50,
+        "schedule": "quad",
+        "is_linear": true,
+        "h_size": 96,
+        "ref_size": 192
+    },
+    "model": {
+        "is_unconditional": false,
+        "timeemb": 128,
+        "featureemb": 16,
+        "target_strategy": "test",
+        "num_sample_features": 64,
+        "use_reference": true
+    }
+}
+model folder: ./save/forecasting_electricity_20251118_032307/
+  0%|          | 0/1115 [00:00<?, ?it/s]  0%|          | 0/1115 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/exe_forecasting.py", line 73, in <module>
+    train(
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/utils.py", line 34, in train
+    loss = model(train_batch)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 322, in forward
+    return loss_func(observed_data, cond_mask, observed_mask, side_info, is_train, reference=reference)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 130, in calc_loss
+    predicted = self.diffmodel(total_input, side_info, t, reference=reference)  # (B,K,L)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 176, in forward
+    x, skip_connection = layer(x, cond_info, diffusion_emb, reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 275, in forward
+    y = self.mid_projection(y)  # (B,2*channel,K*L)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 371, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 366, in _conv_forward
+    return F.conv1d(
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 724.00 MiB. GPU 0 has a total capacity of 31.36 GiB of which 685.31 MiB is free. Process 108858 has 4.88 GiB memory in use. Including non-PyTorch memory, this process has 25.75 GiB memory in use. Of the allocated memory 22.13 GiB is allocated by PyTorch, and 3.04 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Namespace(config='base_forecasting.yaml', datatype='electricity', device='cuda:0', seed=1, unconditional=False, modelfolder='', nsample=100, h_size=720, ref_size=192)
+{
+    "train": {
+        "epochs": 100,
+        "batch_size": 16,
+        "lr": 0.0003,
+        "itr_per_epoch": 100000000.0
+    },
+    "diffusion": {
+        "layers": 4,
+        "channels": 64,
+        "nheads": 8,
+        "diffusion_embedding_dim": 128,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "num_steps": 50,
+        "schedule": "quad",
+        "is_linear": true,
+        "h_size": 720,
+        "ref_size": 192
+    },
+    "model": {
+        "is_unconditional": false,
+        "timeemb": 128,
+        "featureemb": 16,
+        "target_strategy": "test",
+        "num_sample_features": 64,
+        "use_reference": true
+    }
+}
+model folder: ./save/forecasting_electricity_20251118_032311/
+  0%|          | 0/1037 [00:00<?, ?it/s]  0%|          | 0/1037 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/exe_forecasting.py", line 73, in <module>
+    train(
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/utils.py", line 34, in train
+    loss = model(train_batch)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 322, in forward
+    return loss_func(observed_data, cond_mask, observed_mask, side_info, is_train, reference=reference)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 130, in calc_loss
+    predicted = self.diffmodel(total_input, side_info, t, reference=reference)  # (B,K,L)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 176, in forward
+    x, skip_connection = layer(x, cond_info, diffusion_emb, reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 255, in forward
+    cond_info = self.RMA(y.reshape(B, channel, K, L),cond_info.reshape(B, channel, K, L),reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 74, in forward
+    context_out = einsum('b h j i, b h j d -> b h i d', context_attn, cond)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/functional.py", line 373, in einsum
+    return _VF.einsum(equation, operands)  # type: ignore[attr-defined]
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 642.00 MiB. GPU 0 has a total capacity of 31.36 GiB of which 213.31 MiB is free. Process 108858 has 4.88 GiB memory in use. Including non-PyTorch memory, this process has 26.21 GiB memory in use. Of the allocated memory 25.39 GiB is allocated by PyTorch, and 245.31 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Namespace(config='base_forecasting.yaml', datatype='electricity', device='cuda:0', seed=1, unconditional=False, modelfolder='', nsample=100, h_size=96, ref_size=336)
+{
+    "train": {
+        "epochs": 100,
+        "batch_size": 16,
+        "lr": 0.0003,
+        "itr_per_epoch": 100000000.0
+    },
+    "diffusion": {
+        "layers": 4,
+        "channels": 64,
+        "nheads": 8,
+        "diffusion_embedding_dim": 128,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "num_steps": 50,
+        "schedule": "quad",
+        "is_linear": true,
+        "h_size": 96,
+        "ref_size": 336
+    },
+    "model": {
+        "is_unconditional": false,
+        "timeemb": 128,
+        "featureemb": 16,
+        "target_strategy": "test",
+        "num_sample_features": 64,
+        "use_reference": true
+    }
+}
+model folder: ./save/forecasting_electricity_20251118_032314/
+  0%|          | 0/1097 [00:00<?, ?it/s]  0%|          | 0/1097 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/exe_forecasting.py", line 73, in <module>
+    train(
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/utils.py", line 34, in train
+    loss = model(train_batch)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 322, in forward
+    return loss_func(observed_data, cond_mask, observed_mask, side_info, is_train, reference=reference)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 130, in calc_loss
+    predicted = self.diffmodel(total_input, side_info, t, reference=reference)  # (B,K,L)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 176, in forward
+    x, skip_connection = layer(x, cond_info, diffusion_emb, reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 274, in forward
+    y = self.forward_feature(y, base_shape)  # (B,channel,K*L)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 236, in forward_feature
+    y = self.feature_layer(y.permute(0, 2, 1)).permute(0, 2, 1)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/linear_attention_transformer/linear_attention_transformer.py", line 438, in forward
+    return self.layers(x, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/linear_attention_transformer/reversible.py", line 149, in forward
+    x = x + f(x, **f_args)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/linear_attention_transformer/linear_attention_transformer.py", line 75, in forward
+    return self.fn(x, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/linear_attention_transformer/linear_attention_transformer.py", line 291, in forward
+    q, k, v = (self.to_q(x), self.to_k(x), self.to_v(x))
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 542.00 MiB. GPU 0 has a total capacity of 31.36 GiB of which 265.31 MiB is free. Process 108858 has 4.88 GiB memory in use. Including non-PyTorch memory, this process has 26.16 GiB memory in use. Of the allocated memory 23.81 GiB is allocated by PyTorch, and 1.77 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Namespace(config='base_forecasting.yaml', datatype='electricity', device='cuda:0', seed=1, unconditional=False, modelfolder='', nsample=100, h_size=720, ref_size=336)
+{
+    "train": {
+        "epochs": 100,
+        "batch_size": 16,
+        "lr": 0.0003,
+        "itr_per_epoch": 100000000.0
+    },
+    "diffusion": {
+        "layers": 4,
+        "channels": 64,
+        "nheads": 8,
+        "diffusion_embedding_dim": 128,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "num_steps": 50,
+        "schedule": "quad",
+        "is_linear": true,
+        "h_size": 720,
+        "ref_size": 336
+    },
+    "model": {
+        "is_unconditional": false,
+        "timeemb": 128,
+        "featureemb": 16,
+        "target_strategy": "test",
+        "num_sample_features": 64,
+        "use_reference": true
+    }
+}
+model folder: ./save/forecasting_electricity_20251118_032318/
+  0%|          | 0/1019 [00:00<?, ?it/s]  0%|          | 0/1019 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/exe_forecasting.py", line 73, in <module>
+    train(
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/utils.py", line 34, in train
+    loss = model(train_batch)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 322, in forward
+    return loss_func(observed_data, cond_mask, observed_mask, side_info, is_train, reference=reference)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 130, in calc_loss
+    predicted = self.diffmodel(total_input, side_info, t, reference=reference)  # (B,K,L)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 176, in forward
+    x, skip_connection = layer(x, cond_info, diffusion_emb, reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 255, in forward
+    cond_info = self.RMA(y.reshape(B, channel, K, L),cond_info.reshape(B, channel, K, L),reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 67, in forward
+    context_attn = sim.softmax(dim = -2)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 3.15 GiB. GPU 0 has a total capacity of 31.36 GiB of which 1.46 GiB is free. Process 108858 has 4.88 GiB memory in use. Including non-PyTorch memory, this process has 24.96 GiB memory in use. Of the allocated memory 24.09 GiB is allocated by PyTorch, and 294.27 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Namespace(config='base_forecasting.yaml', datatype='electricity', device='cuda:0', seed=1, unconditional=False, modelfolder='', nsample=100, h_size=96, ref_size=720)
+{
+    "train": {
+        "epochs": 100,
+        "batch_size": 16,
+        "lr": 0.0003,
+        "itr_per_epoch": 100000000.0
+    },
+    "diffusion": {
+        "layers": 4,
+        "channels": 64,
+        "nheads": 8,
+        "diffusion_embedding_dim": 128,
+        "beta_start": 0.0001,
+        "beta_end": 0.5,
+        "num_steps": 50,
+        "schedule": "quad",
+        "is_linear": true,
+        "h_size": 96,
+        "ref_size": 720
+    },
+    "model": {
+        "is_unconditional": false,
+        "timeemb": 128,
+        "featureemb": 16,
+        "target_strategy": "test",
+        "num_sample_features": 64,
+        "use_reference": true
+    }
+}
+model folder: ./save/forecasting_electricity_20251118_032322/
+  0%|          | 0/1049 [00:00<?, ?it/s]  0%|          | 0/1049 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/exe_forecasting.py", line 73, in <module>
+    train(
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/utils.py", line 34, in train
+    loss = model(train_batch)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 322, in forward
+    return loss_func(observed_data, cond_mask, observed_mask, side_info, is_train, reference=reference)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/main_model.py", line 130, in calc_loss
+    predicted = self.diffmodel(total_input, side_info, t, reference=reference)  # (B,K,L)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 176, in forward
+    x, skip_connection = layer(x, cond_info, diffusion_emb, reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 255, in forward
+    cond_info = self.RMA(y.reshape(B, channel, K, L),cond_info.reshape(B, channel, K, L),reference)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1777, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/cds/anaconda3/envs/VARDiff/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1788, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cds/ntthu/VARDiff/RATD_baseline/diff_models.py", line 65, in forward
+    sim = einsum('b h i d, b h j d -> b h i j', cond, ref) * self.scale # (B*C, N, K, K)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 3.15 GiB. GPU 0 has a total capacity of 31.36 GiB of which 2.78 GiB is free. Process 108858 has 4.88 GiB memory in use. Including non-PyTorch memory, this process has 23.64 GiB memory in use. Of the allocated memory 22.76 GiB is allocated by PyTorch, and 304.25 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
